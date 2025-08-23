@@ -1,0 +1,129 @@
+{
+  "component_type": "card_grid",
+  "name": "recommendation_cards",
+  "title": "Optimization Recommendations",
+  "position": {
+    "x": 0,
+    "y": 10,
+    "width": 12,
+    "height": 6
+  },
+  "data_source": {
+    "type": "variable",
+    "variable": "optimization_result.recommended_changes",
+    "fallback": []
+  },
+  "config": {
+    "card_template": {
+      "width": 300,
+      "height": 200,
+      "margin": 16,
+      "border_radius": 8,
+      "shadow": "0 2px 8px rgba(0,0,0,0.1)"
+    },
+    "layout": {
+      "type": "grid",
+      "columns": 4,
+      "responsive": true
+    }
+  },
+  "card_content": {
+    "header": {
+      "title": "{{flight_no}}",
+      "subtitle": "{{change_type | titlecase}}",
+      "icon": {
+        "field": "change_type",
+        "mapping": {
+          "time_shift": "schedule",
+          "runway_change": "flight_takeoff",
+          "cancellation": "cancel",
+          "gate_change": "location_on"
+        }
+      },
+      "status_indicator": {
+        "field": "impact_level",
+        "colors": {
+          "low": "#4caf50",
+          "medium": "#ff9800",
+          "high": "#f44336"
+        }
+      }
+    },
+    "body": {
+      "sections": [
+        {
+          "type": "metric_row",
+          "metrics": [
+            {
+              "label": "Delay Reduction",
+              "value": "{{delay_reduction_minutes}}min",
+              "trend": "{{delay_reduction_minutes > 0 ? 'up' : 'down'}}",
+              "color": "{{delay_reduction_minutes > 0 ? '#4caf50' : '#f44336'}}"
+            },
+            {
+              "label": "CO₂ Impact",
+              "value": "{{co2_impact_kg.toFixed(1)}}kg",
+              "trend": "{{co2_impact_kg < 0 ? 'down' : 'up'}}",
+              "color": "{{co2_impact_kg < 0 ? '#4caf50' : '#f44336'}}"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "{{description}}",
+          "style": {
+            "font_size": "14px",
+            "color": "#666",
+            "margin": "8px 0"
+          }
+        },
+        {
+          "type": "progress_bar",
+          "label": "Confidence",
+          "value": "{{confidence_score}}",
+          "max": 1.0,
+          "format": "percentage",
+          "color": "#1976d2"
+        }
+      ]
+    },
+    "footer": {
+      "actions": [
+        {
+          "type": "button",
+          "label": "Apply Change",
+          "style": "primary",
+          "size": "small",
+          "action": "apply_recommendation",
+          "data": "{{this}}"
+        },
+        {
+          "type": "button", 
+          "label": "What-if",
+          "style": "secondary",
+          "size": "small",
+          "action": "open_modal",
+          "modal": "whatif_modal",
+          "data": "{{this}}"
+        }
+      ]
+    }
+  },
+  "empty_state": {
+    "icon": "lightbulb_outline",
+    "title": "No Recommendations Available",
+    "description": "Run optimization to generate schedule improvement recommendations",
+    "action": {
+      "label": "Run Optimization",
+      "action": "trigger_optimization"
+    }
+  },
+  "interactions": {
+    "card_click": {
+      "action": "open_modal",
+      "modal": "recommendation_details_modal",
+      "data": "{{clickedData}}"
+    }
+  },
+  "refresh_trigger": ["optimization_complete"]
+}

@@ -5,11 +5,13 @@
 ### 1. Environment Setup
 
 1. **Copy the environment file:**
+
    ```bash
    cp .env.example .env
    ```
 
 2. **Create required directories:**
+
    ```bash
    mkdir -p data/parquet data/backups models logs
    ```
@@ -18,6 +20,8 @@
    ```bash
    pip install -r requirements.txt
    ```
+
+   **Note on OR-Tools**: The system includes support for advanced optimization algorithms using Google OR-Tools. If OR-Tools installation fails or causes compatibility issues on your system, the schedule optimizer will automatically fall back to heuristic methods that provide good results without external dependencies.
 
 ### 2. Basic Configuration
 
@@ -43,24 +47,38 @@ LOGGING__LEVEL=INFO
 ### 3. Running the Application
 
 #### Option A: Run the API Server
+
 ```bash
 python main.py
 ```
+
 The API will be available at `http://localhost:8000`
 
 #### Option B: Run Analytics Demo
+
 ```bash
 python demo_analytics.py
 ```
+
 This demonstrates the peak traffic analysis engine with sample data.
 
-#### Option C: Run Tests
+#### Option C: Run Schedule Optimization Demo
+
+```bash
+python demo_schedule_optimization.py
+```
+
+This demonstrates the constraint-based schedule optimization engine with multi-objective optimization.
+
+#### Option D: Run Tests
+
 ```bash
 # Run all tests
 pytest
 
 # Run specific test modules
 pytest tests/test_analytics.py -v
+pytest tests/test_schedule_optimizer.py -v
 pytest tests/test_analytics_integration.py -v
 ```
 
@@ -69,6 +87,7 @@ pytest tests/test_analytics_integration.py -v
 ### External APIs (Optional)
 
 #### Weather API Integration
+
 For real-time weather data affecting runway capacity:
 
 1. Get API key from [OpenWeatherMap](https://openweathermap.org/api)
@@ -78,6 +97,7 @@ For real-time weather data affecting runway capacity:
    ```
 
 #### AI Insights with Gemini Pro
+
 For AI-powered scheduling insights:
 
 1. Get API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
@@ -132,12 +152,23 @@ agentic-flight-scheduler/
 ## Testing Your Setup
 
 ### 1. Run Analytics Demo
+
 ```bash
 python demo_analytics.py
 ```
+
 Should show peak traffic analysis with sample Mumbai airport data.
 
-### 2. Test API Server
+### 2. Run Schedule Optimization Demo
+
+```bash
+python demo_schedule_optimization.py
+```
+
+Should demonstrate constraint-based optimization with multi-objective algorithms.
+
+### 3. Test API Server
+
 ```bash
 # Start server
 python main.py
@@ -147,36 +178,46 @@ curl http://localhost:8000/
 curl http://localhost:8000/health
 ```
 
-### 3. Run Test Suite
+### 4. Run Test Suite
+
 ```bash
 pytest tests/ -v
 ```
+
 Should show all tests passing.
 
 ## Common Issues & Solutions
 
 ### Issue: "ModuleNotFoundError"
+
 **Solution:** Ensure you're in the project root directory and have installed dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Issue: "Permission denied" for data directories
+
 **Solution:** Create directories with proper permissions:
+
 ```bash
 mkdir -p data/parquet data/backups models logs
 chmod 755 data/ models/ logs/
 ```
 
 ### Issue: Database connection errors
+
 **Solution:** Ensure the data directory exists and is writable:
+
 ```bash
 mkdir -p data
 touch data/flights.duckdb
 ```
 
 ### Issue: Port already in use
+
 **Solution:** Change the port in `.env`:
+
 ```bash
 API__PORT=8001
 ```
@@ -184,16 +225,19 @@ API__PORT=8001
 ## Environment Variables Reference
 
 ### Required Settings
+
 - `ENVIRONMENT`: Environment name (development/production/testing)
 - `DATABASE__DUCKDB_PATH`: Database file path
 - `API__PORT`: API server port
 
 ### Optional Settings
+
 - `WEATHER_API_KEY`: For weather-based capacity adjustments
 - `GEMINI_API_KEY`: For AI-powered insights
 - `SLACK_WEBHOOK_URL`: For operational alerts
 
 ### Performance Tuning
+
 - `API__WORKERS`: Number of worker processes
 - `BATCH_SIZE`: Data processing batch size
 - `ML__PREDICTION_CACHE_TTL`: Prediction cache duration

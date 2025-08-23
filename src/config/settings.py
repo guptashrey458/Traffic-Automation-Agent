@@ -69,6 +69,19 @@ class LoggingSettings(BaseSettings):
     log_file: Optional[str] = Field(default=None, description="Log file path")
 
 
+class OfflineReplaySettings(BaseSettings):
+    """Offline replay mode configuration settings."""
+    
+    enabled: bool = Field(default=False, description="Enable offline replay mode")
+    data_source_path: str = Field(default="data/", description="Path to replay data files")
+    simulation_speed_multiplier: float = Field(default=1.0, description="Speed multiplier for time simulation")
+    start_time_offset_hours: int = Field(default=0, description="Hours to offset simulation start time")
+    weather_simulation_enabled: bool = Field(default=True, description="Enable weather regime simulation")
+    console_alerts_enabled: bool = Field(default=True, description="Enable console-based alerts")
+    demo_scenario: str = Field(default="standard", description="Demo scenario to run")
+    max_simulation_hours: int = Field(default=24, description="Maximum simulation duration in hours")
+
+
 class Settings(BaseSettings):
     """Main application settings."""
     
@@ -81,6 +94,9 @@ class Settings(BaseSettings):
     
     # Environment
     environment: str = Field(default="development", description="Environment name")
+    
+    # Offline replay mode
+    offline_replay: OfflineReplaySettings = Field(default_factory=OfflineReplaySettings)
     
     # Component settings
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
@@ -107,6 +123,16 @@ class Settings(BaseSettings):
         },
         description="Alert threshold configurations"
     )
+    
+    # External API Keys
+    google_api_key: Optional[str] = Field(default=None, description="Google Gemini API key")
+    gemini_api_key: Optional[str] = Field(default=None, description="Gemini API key (alternative)")
+    weather_api_key: Optional[str] = Field(default=None, description="Weather API key")
+    
+    # Natural Language Processing
+    nl_use_gemini: bool = Field(default=True, description="Use Gemini for NL processing")
+    nl_gemini_model: str = Field(default="gemini-1.5-pro", description="Gemini model to use")
+    nl_gemini_rpm: int = Field(default=24, description="Gemini requests per minute limit")
 
 
 # Global settings instance

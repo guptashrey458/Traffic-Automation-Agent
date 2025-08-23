@@ -2,70 +2,89 @@
 
 ## Overview
 
-The Agentic AI Flight Scheduling system is designed as a microservices architecture that combines machine learning, optimization algorithms, and natural language processing to provide intelligent flight schedule management. The system processes historical flight data to learn delay patterns, predicts risks, and optimizes schedules while providing an intuitive natural language interface for airport operations staff.
+The Agentic AI Flight Scheduling system is an autonomous intelligent agent that provides continuous real-time flight schedule optimization and delay prevention. The system combines advanced machine learning, weighted graph optimization, and natural language processing to operate as a 24/7 autonomous co-pilot for airport operations.
 
-The architecture follows a layered approach with clear separation between data ingestion, analytics, optimization, and presentation layers. The system is designed to handle real-time what-if scenarios while maintaining historical context for learning and prediction.
+The architecture follows an event-driven, autonomous agent pattern with real-time data ingestion, continuous learning, and proactive decision-making capabilities. The system monitors live flight data, weather conditions, and runway availability to automatically detect issues, optimize schedules, and prevent delay cascades before they occur. It operates with minimal human intervention while providing transparent explanations of its autonomous decisions.
 
 ## Architecture
 
 ```mermaid
 graph TB
-    subgraph "Data Layer"
-        A[Excel Files<br/>STD/ATD/STA/ATA] --> B[Data Ingestion Service]
-        B --> C[DuckDB/Parquet<br/>Feature Store]
-        D[Weather API] --> C
+    subgraph "Real-Time Data Ingestion"
+        A[Live Flight Feeds<br/>ADS-B/OpenSky] --> Q[Event Stream<br/>Kafka/Redis]
+        B[Weather APIs<br/>METAR/TAF] --> Q
+        C[Runway Status<br/>A-CDM/Manual] --> Q
+        D[Excel Batch<br/>Historical] --> Q
     end
     
-    subgraph "ML & Analytics Layer"
-        C --> E[Delay Risk Models<br/>LightGBM]
-        C --> F[Turnaround Analysis]
-        C --> G[Peak Detection<br/>Analytics]
-        C --> H[Cascade Analysis]
+    subgraph "Data Lakehouse"
+        Q --> E[DuckDB/Parquet<br/>Time-Partitioned]
+        Q --> F[Feature Store<br/>Real-time Features]
+        Q --> G[Graph Database<br/>Runway/Resource Graph]
     end
     
-    subgraph "Optimization Layer"
-        E --> I[Schedule Optimizer<br/>Min-Cost Flow/CP-SAT]
-        F --> I
-        G --> I
-        J[Constraints Engine<br/>YAML Rules] --> I
-        I --> K[What-If Simulator]
+    subgraph "Continuous ML Pipeline"
+        E --> H[Feature Engineering<br/>Online/Offline Parity]
+        H --> I[LightGBM Models<br/>Auto-Retrain]
+        H --> J[Cascade Graph<br/>PageRank/Centrality]
+        H --> K[Capacity Models<br/>Weather-Adjusted]
     end
     
-    subgraph "Agent Layer"
-        L[Natural Language<br/>Gemini Pro] --> M[Intent Router]
-        M --> N[Tool Orchestrator]
-        N --> E
-        N --> G
-        N --> I
-        N --> K
+    subgraph "Weighted Graph Optimization"
+        I --> L[Cost Function<br/>Multi-Objective]
+        J --> L
+        K --> L
+        G --> L
+        L --> M[CP-SAT/Min-Cost Flow<br/>Runway Assignment]
+        L --> N[Heuristic Fallback<br/>Greedy + Local Search]
+        M --> O[What-If Engine<br/>Impact Analysis]
+        N --> O
     end
     
-    subgraph "API & Interface Layer"
-        N --> O[FastAPI Backend]
-        O --> P[Retool Dashboard]
-        O --> Q[Zapier Alerts]
-        O --> R[External Systems<br/>via REST API]
+    subgraph "Autonomous Agent Core"
+        P[Monitor Policies<br/>Threshold Detection] --> Q1[Tool Orchestrator]
+        R[NLP Router<br/>Multi-Provider Chain] --> Q1
+        Q1 --> I
+        Q1 --> M
+        Q1 --> O
+        Q1 --> S[Decision Engine<br/>Autonomous Actions]
+    end
+    
+    subgraph "Interfaces & Integration"
+        S --> T[FastAPI<br/>Real-time Endpoints]
+        T --> U[Dashboard<br/>Live Monitoring]
+        T --> V[Slack Alerts<br/>Autonomous Notifications]
+        T --> W[External APIs<br/>Airport Systems]
+    end
+    
+    subgraph "Feedback Loop"
+        W --> X[Outcome Tracking]
+        X --> Y[Model Performance<br/>Monitoring]
+        Y --> I
     end
 ```
 
 ## Components and Interfaces
 
-### Data Ingestion Service
-**Purpose:** Process multiple Excel files and normalize flight data
+### Real-Time Data Ingestion Service
+**Purpose:** Continuously ingest and process live flight data, weather, and operational updates
 **Key Functions:**
-- Parse Excel files with flexible column mapping
-- Convert IST timestamps to UTC with timezone handling
-- Calculate delay metrics (departure/arrival delays)
-- Handle missing data with intelligent fallbacks
-- Store in optimized Parquet format
+- Stream live flight data from ADS-B/OpenSky APIs
+- Integrate real-time weather data (METAR/TAF)
+- Process runway availability and A-CDM updates
+- Maintain online/offline feature parity
+- Handle data quality and missing values in real-time
+- Store in time-partitioned format for fast queries
 
 **Interface:**
 ```python
-class DataIngestionService:
-    def ingest_excel_files(self, file_paths: List[str]) -> IngestResult
-    def normalize_timestamps(self, df: DataFrame) -> DataFrame
-    def calculate_delays(self, df: DataFrame) -> DataFrame
-    def validate_data_quality(self, df: DataFrame) -> ValidationReport
+class RealTimeIngestionService:
+    def start_live_streams(self) -> None
+    def process_flight_update(self, flight_data: FlightUpdate) -> None
+    def process_weather_update(self, weather_data: WeatherUpdate) -> None
+    def process_runway_update(self, runway_data: RunwayStatus) -> None
+    def get_live_features(self, flight_id: str) -> FeatureVector
+    def ingest_excel_batch(self, file_paths: List[str]) -> IngestResult
 ```
 
 ### Analytics Engine
@@ -102,38 +121,101 @@ class DelayRiskPredictor:
     def predict_taxi_time(self, flight: Flight, runway: str) -> TaxiTimeEstimate
 ```
 
-### Schedule Optimizer
-**Purpose:** Optimize flight schedules using constraint-based algorithms
+### Weighted Graph Schedule Optimizer
+**Purpose:** Optimize flight schedules using weighted graph algorithms and constraint satisfaction
 **Key Functions:**
-- Min-cost flow formulation for slot assignment
-- Multi-objective optimization with configurable weights
-- Constraint satisfaction for operational rules
-- Real-time optimization for what-if scenarios
+- Bipartite graph modeling (flights ↔ runway-time slots)
+- Multi-objective cost function with runway-dependent weights
+- CP-SAT and min-cost flow solvers with heuristic fallbacks
+- Real-time constraint validation and feasibility checking
+- Autonomous optimization triggers based on operational thresholds
 
 **Interface:**
 ```python
-class ScheduleOptimizer:
-    def optimize_schedule(self, flights: List[Flight], constraints: Constraints, 
-                         weights: ObjectiveWeights) -> OptimizationResult
+class WeightedGraphOptimizer:
+    def build_feasibility_graph(self, flights: List[Flight], slots: List[TimeSlot]) -> BipartiteGraph
+    def calculate_edge_costs(self, flight: Flight, slot: TimeSlot, weights: ObjectiveWeights) -> float
+    def solve_assignment(self, graph: BipartiteGraph, solver: str = "cp_sat") -> OptimizationResult
+    def autonomous_optimize(self, trigger_conditions: Dict[str, Any]) -> OptimizationResult
     def what_if_analysis(self, base_schedule: Schedule, changes: List[FlightChange]) -> ImpactAnalysis
-    def validate_constraints(self, schedule: Schedule, constraints: Constraints) -> ValidationResult
+    def validate_runway_constraints(self, assignment: Dict[str, str]) -> List[ConstraintViolation]
 ```
 
-### Natural Language Interface
-**Purpose:** Process natural language queries and route to appropriate tools
+### Autonomous Agent Core
+**Purpose:** Provide autonomous decision-making and multi-provider NLP capabilities
 **Key Functions:**
-- Intent classification using Gemini Pro
-- Query parameter extraction
-- Tool orchestration and response formatting
-- Context-aware conversation management
+- Multi-provider NLP chain (Gemini Pro → Perplexity → OpenAI → Local)
+- Autonomous monitoring with policy-based triggers
+- Tool orchestration and decision engine
+- Confidence-based autonomous actions
+- Transparent reasoning and explanation generation
 
 **Interface:**
 ```python
-class NLInterface:
+class AutonomousAgent:
     def process_query(self, query: str, context: ConversationContext) -> Response
-    def classify_intent(self, query: str) -> Intent
-    def extract_parameters(self, query: str, intent: Intent) -> Parameters
-    def format_response(self, tool_result: Any, intent: Intent) -> NLResponse
+    def monitor_conditions(self, policies: List[MonitorPolicy]) -> List[TriggerEvent]
+    def execute_autonomous_action(self, trigger: TriggerEvent, confidence_threshold: float) -> ActionResult
+    def explain_decision(self, action: ActionResult) -> Explanation
+    def classify_intent_with_fallback(self, query: str) -> Intent
+    def orchestrate_tools(self, intent: Intent, parameters: Dict[str, Any]) -> ToolResult
+```
+
+### Continuous Learning ML Pipeline
+**Purpose:** Provide adaptive machine learning with real-time model updates
+**Key Functions:**
+- Incremental learning with online feature engineering
+- Automated model retraining based on performance drift
+- Ensemble methods combining multiple prediction approaches
+- Real-time feature store for low-latency inference
+- Model performance monitoring and alerting
+
+**Interface:**
+```python
+class ContinuousLearningPipeline:
+    def update_features_online(self, flight_update: FlightUpdate) -> None
+    def retrain_models_incremental(self, new_data: DataFrame) -> ModelUpdateResult
+    def predict_with_ensemble(self, features: FeatureVector) -> EnsemblePrediction
+    def monitor_model_drift(self, predictions: List[Prediction], actuals: List[float]) -> DriftReport
+    def trigger_retraining(self, drift_threshold: float) -> bool
+```
+
+### Weather Integration Service
+**Purpose:** Integrate weather data and forecasts into capacity and optimization models
+**Key Functions:**
+- Real-time weather data ingestion and processing
+- Weather-based capacity adjustment algorithms
+- Predictive weather impact modeling
+- Contingency planning for weather scenarios
+- Integration with runway graph optimization
+
+**Interface:**
+```python
+class WeatherIntegrationService:
+    def process_weather_update(self, weather_data: WeatherData) -> None
+    def adjust_runway_capacity(self, runway: str, weather: WeatherConditions) -> CapacityAdjustment
+    def predict_weather_impact(self, forecast: WeatherForecast, horizon_hours: int) -> ImpactForecast
+    def generate_weather_scenarios(self, base_schedule: Schedule) -> List[WeatherScenario]
+    def optimize_for_weather(self, scenario: WeatherScenario) -> OptimizationResult
+```
+
+### Autonomous Monitor Service
+**Purpose:** Continuously monitor operational conditions and trigger autonomous actions
+**Key Functions:**
+- Policy-based condition monitoring
+- Threshold detection and alert generation
+- Autonomous decision-making within predefined limits
+- Escalation to human operators for complex scenarios
+- Audit trail for all autonomous actions
+
+**Interface:**
+```python
+class AutonomousMonitor:
+    def evaluate_policies(self, policies: List[MonitorPolicy]) -> List[PolicyTrigger]
+    def execute_autonomous_action(self, trigger: PolicyTrigger) -> ActionResult
+    def escalate_to_human(self, complex_scenario: Scenario) -> EscalationRequest
+    def log_autonomous_decision(self, action: ActionResult, reasoning: str) -> None
+    def check_guardrails(self, proposed_action: Action) -> GuardrailCheck
 ```
 
 ## Data Models
@@ -206,24 +288,151 @@ class CascadeNode:
     cascade_depth: int
 ```
 
+### Weighted Graph Models
+```python
+@dataclass
+class BipartiteGraph:
+    flight_nodes: List[FlightNode]
+    slot_nodes: List[SlotNode]
+    edges: List[WeightedEdge]
+    constraints: List[GraphConstraint]
+
+@dataclass
+class WeightedEdge:
+    flight_id: str
+    slot_id: str
+    cost: float
+    cost_breakdown: Dict[str, float]  # delay, taxi, fairness, environment, curfew
+    feasible: bool
+    constraint_violations: List[str]
+
+@dataclass
+class SlotNode:
+    slot_id: str
+    runway: str
+    timestamp: datetime
+    capacity: int
+    current_demand: int
+    weather_adjusted_capacity: int
+    is_curfew: bool
+    
+@dataclass
+class FlightNode:
+    flight_id: str
+    original_slot: datetime
+    constraints: List[str]  # turnaround, wake, curfew
+    priority_score: float
+    airline: str
+```
+
+### Real-Time Data Models
+```python
+@dataclass
+class FlightUpdate:
+    flight_id: str
+    update_type: str  # "status", "gate", "runway", "delay"
+    timestamp: datetime
+    old_value: Any
+    new_value: Any
+    source: str  # "ads-b", "a-cdm", "manual"
+
+@dataclass
+class WeatherUpdate:
+    airport_code: str
+    timestamp: datetime
+    visibility_km: float
+    wind_speed_kts: float
+    wind_direction: int
+    precipitation: bool
+    weather_regime: WeatherRegime
+    forecast_horizon_hours: int
+
+@dataclass
+class RunwayStatus:
+    runway_id: str
+    airport_code: str
+    status: str  # "open", "closed", "maintenance"
+    capacity_override: Optional[int]
+    closure_reason: Optional[str]
+    estimated_reopening: Optional[datetime]
+
+@dataclass
+class AutonomousAction:
+    action_id: str
+    trigger_condition: str
+    action_type: str  # "optimize", "alert", "adjust_capacity"
+    confidence_score: float
+    affected_flights: List[str]
+    expected_impact: Dict[str, float]
+    human_approval_required: bool
+    reasoning: str
+    timestamp: datetime
+```
+
+### Monitoring and Policy Models
+```python
+@dataclass
+class MonitorPolicy:
+    policy_id: str
+    name: str
+    condition: str  # "utilization > 1.10", "delayed_30m_count >= 5"
+    action: str    # "optimize_top_risk", "alert_slack"
+    threshold_values: Dict[str, float]
+    cooldown_minutes: int
+    enabled: bool
+
+@dataclass
+class PolicyTrigger:
+    policy_id: str
+    trigger_time: datetime
+    condition_values: Dict[str, float]
+    severity: str  # "low", "medium", "high", "critical"
+    recommended_action: str
+    confidence: float
+
+@dataclass
+class GuardrailCheck:
+    action_allowed: bool
+    violations: List[str]
+    max_changes_exceeded: bool
+    min_notice_violated: bool
+    fairness_constraints_ok: bool
+    alternative_suggestions: List[str]
+```
+
 ## Error Handling
 
-### Data Quality Issues
-- **Missing timestamps:** Fall back to scheduled times, mark as imputed
-- **Invalid aircraft codes:** Use generic wake category, log for review
-- **Timezone ambiguity:** Apply consistent IST→UTC conversion with DST handling
-- **Duplicate records:** Deduplicate based on flight_no + date + origin + destination
+### Real-Time Data Issues
+- **Missing live data:** Fall back to historical patterns with confidence degradation
+- **Data stream interruptions:** Buffer recent data, use exponential backoff for reconnection
+- **Weather API failures:** Use cached forecasts, degrade to historical weather patterns
+- **Conflicting data sources:** Implement data source priority and conflict resolution
+- **Late-arriving updates:** Handle out-of-order events with timestamp-based reconciliation
 
-### Model Failures
-- **Prediction errors:** Return confidence intervals, fallback to historical averages
-- **Optimization infeasibility:** Relax constraints iteratively, report trade-offs
-- **API timeouts:** Implement circuit breakers, cached responses for critical queries
+### Autonomous System Failures
+- **Model prediction failures:** Multi-model ensemble with fallback to rule-based systems
+- **Optimization solver failures:** Automatic fallback from CP-SAT → Min-Cost Flow → Heuristic
+- **Policy trigger failures:** Log errors, escalate to human operators, disable faulty policies
+- **Autonomous action errors:** Rollback mechanisms, human override capabilities
+- **Confidence threshold violations:** Escalate decisions to human approval
 
-### System Resilience
-- **Database unavailability:** Use read replicas, cached aggregations
-- **External API failures:** Graceful degradation with reduced functionality
-- **Memory constraints:** Implement data pagination, streaming processing
-- **Concurrent access:** Use optimistic locking, conflict resolution strategies
+### Multi-Provider NLP Resilience
+- **Gemini Pro rate limits:** Automatic fallback to Perplexity API
+- **Perplexity failures:** Cascade to OpenAI with adjusted prompts
+- **OpenAI unavailability:** Use local regex/rule-based intent classification
+- **All NLP providers down:** Provide structured menu-based interface
+
+### Graph Optimization Resilience
+- **Infeasible graph problems:** Iterative constraint relaxation with priority ordering
+- **Memory constraints for large graphs:** Graph partitioning and distributed solving
+- **Solver timeout:** Return best partial solution with quality indicators
+- **Constraint conflicts:** Automatic constraint prioritization and soft constraint handling
+
+### Continuous Learning Robustness
+- **Model drift detection:** Automatic retraining triggers with performance monitoring
+- **Training data quality issues:** Data validation pipelines with anomaly detection
+- **Feature engineering failures:** Fallback to basic feature sets with reduced accuracy
+- **Model deployment failures:** Blue-green deployment with automatic rollback
 
 ## Testing Strategy
 

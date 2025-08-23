@@ -1,0 +1,126 @@
+{
+  "component_type": "metrics_dashboard",
+  "name": "metrics_summary",
+  "title": "Performance Metrics",
+  "position": {
+    "x": 0,
+    "y": 18,
+    "width": 12,
+    "height": 2
+  },
+  "layout": {
+    "type": "horizontal",
+    "spacing": "equal"
+  },
+  "data_sources": {
+    "peaks": {
+      "type": "api",
+      "endpoint": "/flights/peaks",
+      "params": {
+        "airport": "{{ airport_selector.value }}",
+        "date": "{{ date_picker.value }}",
+        "bucket_minutes": "{{ bucket_selector.value }}"
+      }
+    },
+    "optimization": {
+      "type": "variable",
+      "variable": "optimization_result",
+      "fallback": null
+    }
+  },
+  "metrics": [
+    {
+      "name": "capacity_utilization",
+      "title": "Capacity Utilization",
+      "data_source": "peaks.capacity_utilization",
+      "format": "percentage",
+      "color": "{{value > 0.9 ? '#f44336' : (value > 0.7 ? '#ff9800' : '#4caf50')}}",
+      "icon": "trending_up",
+      "tooltip": "Overall runway capacity utilization",
+      "target": 0.85,
+      "show_target": true
+    },
+    {
+      "name": "overload_windows",
+      "title": "Overload Windows",
+      "data_source": "peaks.overload_windows.length",
+      "format": "number",
+      "suffix": " periods",
+      "color": "{{value > 5 ? '#f44336' : (value > 2 ? '#ff9800' : '#4caf50')}}",
+      "icon": "warning",
+      "tooltip": "Number of time periods exceeding capacity"
+    },
+    {
+      "name": "avg_delay",
+      "title": "Average Delay",
+      "data_source": "optimization ? optimization.original_metrics.avg_delay_minutes : 0",
+      "format": "number",
+      "suffix": " min",
+      "color": "{{value > 20 ? '#f44336' : (value > 10 ? '#ff9800' : '#4caf50')}}",
+      "icon": "schedule",
+      "tooltip": "Average departure delay across all flights",
+      "comparison": {
+        "enabled": "{{optimization}}",
+        "value": "{{optimization.optimized_metrics.avg_delay_minutes}}",
+        "format": "change"
+      }
+    },
+    {
+      "name": "on_time_performance",
+      "title": "On-Time Performance",
+      "data_source": "optimization ? optimization.original_metrics.on_time_percentage : 0",
+      "format": "percentage",
+      "color": "{{value < 0.7 ? '#f44336' : (value < 0.85 ? '#ff9800' : '#4caf50')}}",
+      "icon": "check_circle",
+      "tooltip": "Percentage of flights departing within 15 minutes of schedule",
+      "comparison": {
+        "enabled": "{{optimization}}",
+        "value": "{{optimization.optimized_metrics.on_time_percentage}}",
+        "format": "change"
+      }
+    },
+    {
+      "name": "cost_reduction",
+      "title": "Cost Reduction",
+      "data_source": "optimization ? optimization.cost_reduction : 0",
+      "format": "currency",
+      "currency": "USD",
+      "color": "#4caf50",
+      "icon": "savings",
+      "tooltip": "Estimated cost savings from optimization",
+      "visible": "{{optimization}}"
+    },
+    {
+      "name": "co2_impact",
+      "title": "CO₂ Reduction",
+      "data_source": "optimization ? optimization.optimized_metrics.co2_reduction_kg : 0",
+      "format": "number",
+      "suffix": " kg",
+      "color": "#4caf50",
+      "icon": "eco",
+      "tooltip": "Estimated CO₂ emissions reduction",
+      "visible": "{{optimization}}"
+    }
+  ],
+  "alerts": [
+    {
+      "condition": "capacity_utilization > 0.95",
+      "type": "critical",
+      "message": "Critical capacity overload detected",
+      "action": "show_overload_alert"
+    },
+    {
+      "condition": "overload_windows > 10",
+      "type": "warning", 
+      "message": "Multiple overload periods detected",
+      "action": "highlight_overload_periods"
+    },
+    {
+      "condition": "avg_delay > 30",
+      "type": "warning",
+      "message": "High average delays detected",
+      "action": "suggest_optimization"
+    }
+  ],
+  "refresh_trigger": ["airport_selector", "date_picker", "optimization_complete"]
+}

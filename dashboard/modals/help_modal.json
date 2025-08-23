@@ -1,0 +1,182 @@
+{
+  "component_type": "modal",
+  "name": "help_modal",
+  "title": "Dashboard Help & User Guide",
+  "size": "large",
+  "config": {
+    "width": 900,
+    "height": 700,
+    "resizable": true
+  },
+  "content": {
+    "sections": [
+      {
+        "type": "tabbed_content",
+        "tabs": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "info",
+        "content": {
+          "type": "markdown",
+          "text": "# Flight Schedule Optimization Dashboard\n\nThis dashboard provides AI-powered flight scheduling optimization for airport operations. It combines machine learning, optimization algorithms, and natural language processing to help reduce delays and improve operational efficiency.\n\n## Key Features\n\n- **Demand Heatmaps**: Visualize traffic patterns and identify capacity bottlenecks\n- **Flight Gantt Charts**: View flight schedules with color-coded delay risk indicators\n- **Optimization Engine**: Generate schedule improvements using constraint-based algorithms\n- **What-If Analysis**: Simulate the impact of schedule changes before implementation\n- **Real-time Metrics**: Monitor performance indicators and capacity utilization\n\n## Getting Started\n\n1. Select your airport and analysis date using the control panel\n2. Review the demand heatmap to identify peak periods\n3. Examine flight schedules in the Gantt chart\n4. Run optimization to generate improvement recommendations\n5. Use what-if analysis to evaluate specific changes"
+        }
+      },
+      {
+        "id": "components",
+        "title": "Components",
+        "icon": "dashboard",
+        "content": {
+          "type": "component_guide",
+          "sections": [
+            {
+              "title": "Demand Heatmap",
+              "description": "Shows flight demand vs runway capacity across time periods",
+              "features": [
+                "Color-coded intensity (green=low, yellow=medium, red=overload)",
+                "Configurable time buckets (5, 10, 15, 30 minutes)",
+                "Weather regime adjustments",
+                "Click to select time slots for detailed analysis"
+              ],
+              "tips": [
+                "Red areas indicate capacity overload requiring attention",
+                "Use smaller time buckets for detailed analysis",
+                "Consider weather impacts on capacity"
+              ]
+            },
+            {
+              "title": "Flight Gantt Chart",
+              "description": "Timeline view of flight schedules with risk indicators",
+              "features": [
+                "Color-coded delay risk levels",
+                "Runway-based grouping",
+                "Interactive flight selection",
+                "Context menu for quick actions"
+              ],
+              "tips": [
+                "Double-click flights for what-if analysis",
+                "Right-click for context menu options",
+                "Filter by risk level to focus on problematic flights"
+              ]
+            },
+            {
+              "title": "Recommendation Cards",
+              "description": "AI-generated optimization suggestions",
+              "features": [
+                "Impact metrics (delay reduction, CO₂ savings)",
+                "Confidence scores",
+                "One-click application",
+                "Detailed explanations"
+              ],
+              "tips": [
+                "Review confidence scores before applying changes",
+                "Consider CO₂ impact in decision making",
+                "Use what-if analysis for complex changes"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "terminology",
+        "title": "A-CDM/CODA Terms",
+        "icon": "school",
+        "content": {
+          "type": "glossary",
+          "terms": [
+            {
+              "term": "STD/ATD",
+              "definition": "Scheduled/Actual Time of Departure - Key A-CDM milestones for departure tracking"
+            },
+            {
+              "term": "STA/ATA", 
+              "definition": "Scheduled/Actual Time of Arrival - Used for turnaround planning and performance measurement"
+            },
+            {
+              "term": "EXOT/EXIN",
+              "definition": "Expected Off-block/In-block Time - A-CDM calculated times for slot optimization"
+            },
+            {
+              "term": "CTOT",
+              "definition": "Calculated Take-Off Time - Flow management slot allocation"
+            },
+            {
+              "term": "A-CDM",
+              "definition": "Airport Collaborative Decision Making - Framework for coordinated operations"
+            },
+            {
+              "term": "CODA",
+              "definition": "Central Office for Delay Analysis - European delay reporting system"
+            },
+            {
+              "term": "Wake Turbulence",
+              "definition": "Separation requirements between aircraft based on size categories"
+            },
+            {
+              "term": "Turnaround Time",
+              "definition": "Time between arrival and departure for same aircraft"
+            }
+          ]
+        }
+      },
+      {
+        "id": "optimization",
+        "title": "Optimization Guide",
+        "icon": "tune",
+        "content": {
+          "type": "markdown",
+          "text": "# Optimization Parameters\n\n## Objective Weights\n\n**Delay Weight (0.1 - 2.0)**\n- Controls importance of minimizing flight delays\n- Higher values prioritize on-time performance\n- Default: 1.0\n\n**Taxi Time Weight (0.0 - 1.0)**\n- Importance of minimizing ground movement time\n- Affects runway and gate assignments\n- Default: 0.3\n\n**Runway Change Weight (0.0 - 1.0)**\n- Penalty for changing originally assigned runways\n- Higher values maintain stability\n- Default: 0.2\n\n## Constraints\n\n**Max Delay**: Maximum acceptable delay for any flight\n**Min Turnaround**: Minimum time between arrival and departure for same aircraft\n**Curfew Hours**: Enforce airport noise restrictions\n\n## Best Practices\n\n1. Start with default weights and adjust based on results\n2. Consider operational priorities (punctuality vs efficiency)\n3. Review constraint violations in optimization results\n4. Use what-if analysis to validate major changes\n5. Monitor CO₂ impact alongside operational metrics"
+        }
+      },
+      {
+        "id": "troubleshooting",
+        "title": "Troubleshooting",
+        "icon": "build",
+        "content": {
+          "type": "faq",
+          "questions": [
+            {
+              "question": "Why is the heatmap not loading?",
+              "answer": "Check that you have selected a valid airport and date. Ensure the API is running and accessible. Try refreshing the data using the refresh button."
+            },
+            {
+              "question": "Optimization is taking too long",
+              "answer": "Large datasets or complex constraints can increase processing time. Try reducing the date range or adjusting constraint parameters. Check system status for any performance issues."
+            },
+            {
+              "question": "What-if analysis shows no impact",
+              "answer": "Small time changes may have minimal system-wide impact. Try larger adjustments or changes during peak periods. Ensure the selected flight has dependencies with other operations."
+            },
+            {
+              "question": "Recommendations seem unrealistic",
+              "answer": "Review the confidence scores and constraint settings. Ensure operational parameters match your airport's actual capabilities. Consider adjusting objective weights."
+            },
+            {
+              "question": "Dashboard is not responsive",
+              "answer": "Check your internet connection and browser compatibility. Clear browser cache if needed. Contact support if issues persist."
+            }
+          ]
+        }
+      }
+    ]
+      }
+    ]
+  },
+  "footer": {
+    "actions": [
+      {
+        "type": "button",
+        "label": "Contact Support",
+        "style": "secondary",
+        "action": "open_external_link",
+        "url": "mailto:support@agenticflightscheduler.com"
+      },
+      {
+        "type": "button",
+        "label": "Close",
+        "style": "primary",
+        "action": "close_modal"
+      }
+    ]
+  }
+}

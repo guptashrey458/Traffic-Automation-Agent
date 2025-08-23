@@ -1,0 +1,166 @@
+{
+  "component_type": "tooltip_system",
+  "name": "acdm_coda_tooltips",
+  "title": "A-CDM/CODA Terminology Tooltips",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "width": 12,
+    "height": 1
+  },
+  "config": {
+    "trigger": "hover",
+    "delay": 500,
+    "position": "auto",
+    "max_width": 300,
+    "theme": "dark"
+  },
+  "glossary": {
+    "STD": {
+      "term": "Scheduled Time of Departure",
+      "definition": "The planned departure time as published in the flight schedule",
+      "context": "A-CDM milestone used for initial slot allocation",
+      "example": "STD: 14:30 UTC"
+    },
+    "ATD": {
+      "term": "Actual Time of Departure", 
+      "definition": "The actual time when aircraft leaves the gate/stand",
+      "context": "A-CDM milestone tracked for delay analysis",
+      "example": "ATD: 14:45 UTC (15min delay)"
+    },
+    "STA": {
+      "term": "Scheduled Time of Arrival",
+      "definition": "The planned arrival time at destination airport",
+      "context": "Used for turnaround planning and slot coordination",
+      "example": "STA: 16:15 UTC"
+    },
+    "ATA": {
+      "term": "Actual Time of Arrival",
+      "definition": "The actual time when aircraft arrives at destination gate",
+      "context": "A-CDM milestone for measuring arrival performance",
+      "example": "ATA: 16:28 UTC (13min delay)"
+    },
+    "EXOT": {
+      "term": "Expected Off-Block Time",
+      "definition": "Predicted time when aircraft will push back from gate",
+      "context": "A-CDM calculated time used for slot optimization",
+      "example": "EXOT: 14:35 UTC"
+    },
+    "EXIN": {
+      "term": "Expected In-Block Time", 
+      "definition": "Predicted time when aircraft will arrive at gate",
+      "context": "Used for turnaround and gate planning",
+      "example": "EXIN: 16:20 UTC"
+    },
+    "CTOT": {
+      "term": "Calculated Take-Off Time",
+      "definition": "Slot time allocated by flow management for departure",
+      "context": "EUROCONTROL/A-CDM slot allocation mechanism",
+      "example": "CTOT: 14:40 UTC"
+    },
+    "CODA": {
+      "term": "Central Office for Delay Analysis",
+      "definition": "European system for standardized delay reporting and analysis",
+      "context": "Provides delay codes and performance metrics",
+      "categories": ["Airline", "Airport", "Weather", "ATC", "Security"]
+    },
+    "A-CDM": {
+      "term": "Airport Collaborative Decision Making",
+      "definition": "Concept improving operational efficiency through information sharing",
+      "context": "Framework for coordinated airport operations management",
+      "benefits": ["Reduced delays", "Better resource utilization", "Improved predictability"]
+    },
+    "Turnaround": {
+      "term": "Aircraft Turnaround Time",
+      "definition": "Time between arrival and departure for same aircraft",
+      "context": "Critical metric for schedule optimization",
+      "components": ["Deboarding", "Cleaning", "Refueling", "Boarding", "Pushback"],
+      "typical_range": "45-90 minutes for narrow-body aircraft"
+    },
+    "Wake_Turbulence": {
+      "term": "Wake Turbulence Separation",
+      "definition": "Minimum time/distance between aircraft due to wake vortices",
+      "context": "Safety constraint affecting runway capacity",
+      "categories": {
+        "Heavy": "B747, A380 - requires 2min separation",
+        "Medium": "A320, B737 - requires 1min separation", 
+        "Light": "Small aircraft - minimal separation"
+      }
+    },
+    "Runway_Capacity": {
+      "term": "Runway Movement Capacity",
+      "definition": "Maximum number of aircraft movements per hour on a runway",
+      "context": "Key constraint in schedule optimization",
+      "factors": ["Weather conditions", "Aircraft mix", "ATC procedures", "Wake turbulence"],
+      "typical_values": {
+        "Single runway": "30-45 movements/hour",
+        "Parallel runways": "60-80 movements/hour"
+      }
+    },
+    "Slot_Coordination": {
+      "term": "Airport Slot Allocation",
+      "definition": "Process of assigning specific times for aircraft operations",
+      "context": "Manages demand vs capacity at congested airports",
+      "principles": ["Grandfather rights", "Use it or lose it", "New entrant rule"],
+      "coordinators": ["Airport Coordinator", "EUROCONTROL", "Local authorities"]
+    },
+    "Peak_Hours": {
+      "term": "Peak Traffic Periods",
+      "definition": "Time windows with highest demand for airport operations",
+      "context": "Critical periods requiring careful schedule management",
+      "characteristics": ["High delay risk", "Capacity constraints", "Coordination challenges"],
+      "typical_times": ["06:00-09:00", "17:00-20:00", "22:00-24:00"]
+    },
+    "Delay_Codes": {
+      "term": "IATA/CODA Delay Classification",
+      "definition": "Standardized codes for categorizing flight delays",
+      "context": "Used for performance analysis and accountability",
+      "categories": {
+        "01-05": "Airline Operations",
+        "06-10": "Technical & Aircraft Equipment", 
+        "11-15": "Damage to Aircraft/FOD",
+        "16-20": "Flight Operations & Crewing",
+        "21-25": "Ground Handling & Ops",
+        "26-30": "Passenger & Baggage",
+        "31-35": "Cargo & Mail",
+        "36-40": "Aircraft & Ramp Handling",
+        "41-45": "Technical Equipment",
+        "46-50": "Damage/FOD",
+        "51-55": "Flight Operations",
+        "56-60": "ATC Restrictions",
+        "61-65": "Restrictions not ATC",
+        "66-70": "Weather",
+        "71-75": "Airport Operations",
+        "76-80": "Government/Security",
+        "81-85": "Airport Facilities",
+        "86-90": "Environmental Issues",
+        "91-95": "Miscellaneous",
+        "96-99": "No Delay/Other"
+      }
+    }
+  },
+  "auto_detection": {
+    "enabled": true,
+    "selectors": [
+      "[data-tooltip]",
+      ".acdm-term",
+      ".coda-term",
+      ".aviation-term"
+    ],
+    "attribute": "data-tooltip"
+  },
+  "manual_triggers": [
+    {
+      "selector": ".demand-heatmap .time-slot",
+      "tooltip_key": "Peak_Hours"
+    },
+    {
+      "selector": ".flight-gantt .flight-bar",
+      "tooltip_key": "Turnaround"
+    },
+    {
+      "selector": ".delay-indicator",
+      "tooltip_key": "Delay_Codes"
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "component_type": "modal",
+  "name": "whatif_modal",
+  "title": "What-If Analysis",
+  "size": "large",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "width": 12,
+    "height": 12
+  },
+  "config": {
+    "width": 800,
+    "height": 600,
+    "resizable": true,
+    "draggable": true
+  },
+  "content": {
+    "sections": [
+      {
+        "type": "form_section",
+        "title": "Flight Selection",
+        "fields": [
+          {
+            "name": "flight_selector",
+            "type": "select",
+            "label": "Flight",
+            "placeholder": "Select or search flight...",
+            "searchable": true,
+            "data_source": {
+              "type": "api",
+              "endpoint": "/flights/risks",
+              "params": {
+                "airport": "{{ airport_selector.value }}",
+                "date": "{{ date_picker.value }}"
+              },
+              "transform": "data.map(f => ({value: f.flight_id, label: f.flight_no + ' - ' + f.aircraft_type}))"
+            },
+            "default_value": "{{ whatif_flight_id || modal_data.flight_id }}",
+            "required": true
+          },
+          {
+            "name": "change_type",
+            "type": "radio_group",
+            "label": "Change Type",
+            "options": [
+              {"value": "time_shift", "label": "Time Shift", "icon": "schedule"},
+              {"value": "runway_change", "label": "Runway Change", "icon": "flight_takeoff"},
+              {"value": "gate_change", "label": "Gate Change", "icon": "location_on"},
+              {"value": "cancellation", "label": "Cancellation", "icon": "cancel"}
+            ],
+            "default_value": "time_shift",
+            "layout": "horizontal"
+          }
+        ]
+      },
+      {
+        "type": "conditional_section",
+        "condition": "change_type.value === 'time_shift'",
+        "content": {
+          "title": "Time Adjustment",
+          "fields": [
+            {
+              "name": "time_change_minutes",
+              "type": "slider",
+              "label": "Time Change (minutes)",
+              "min": -120,
+              "max": 120,
+              "step": 5,
+              "default_value": 0,
+              "marks": {
+                "-60": "-1h",
+                "-30": "-30m", 
+                "0": "No change",
+                "30": "+30m",
+                "60": "+1h"
+              },
+              "tooltip": "Negative values move flight earlier, positive values move later"
+            },
+            {
+              "name": "time_change_display",
+              "type": "text_display",
+              "value": "{{time_change_minutes.value > 0 ? '+' : ''}}{{time_change_minutes.value}}m",
+              "style": {
+                "font_size": "18px",
+                "font_weight": "bold",
+                "color": "{{time_change_minutes.value === 0 ? '#666' : (time_change_minutes.value > 0 ? '#f44336' : '#4caf50')}}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "conditional_section", 
+        "condition": "change_type.value === 'runway_change'",
+        "content": {
+          "title": "Runway Selection",
+          "fields": [
+            {
+              "name": "new_runway",
+              "type": "select",
+              "label": "New Runway",
+              "options": [
+                {"value": "RW09", "label": "Runway 09"},
+                {"value": "RW14", "label": "Runway 14"},
+                {"value": "RW27", "label": "Runway 27"},
+                {"value": "RW32", "label": "Runway 32"}
+              ],
+              "required": true
+            }
+          ]
+        }
+      },
+      {
+        "type": "action_section",
+        "content": [
+          {
+            "type": "button",
+            "name": "run_whatif",
+            "label": "{{whatif_status === 'running' ? 'Analyzing...' : 'Run What-If Analysis'}}",
+            "style": "primary",
+            "size": "large",
+            "disabled": "{{whatif_status === 'running' || !flight_selector.value}}",
+            "loading": "{{whatif_status === 'running'}}",
+            "action": {
+              "type": "api_call",
+              "endpoint": "/whatif",
+              "method": "POST",
+              "payload": {
+                "flight_id": "{{ flight_selector.value }}",
+                "change_type": "{{ change_type.value }}",
+                "change_value": "{{change_type.value === 'time_shift' ? (time_change_minutes.value > 0 ? '+' : '') + time_change_minutes.value + 'm' : new_runway.value}}",
+                "airport": "{{ airport_selector.value }}",
+                "date": "{{ date_picker.value }}"
+              },
+              "on_start": [
+                {
+                  "action": "set_variable",
+                  "variable": "whatif_status",
+                  "value": "running"
+                }
+              ],
+              "on_success": [
+                {
+                  "action": "set_variable",
+                  "variable": "whatif_status",
+                  "value": "complete"
+                },
+                {
+                  "action": "set_variable",
+                  "variable": "whatif_result",
+                  "value": "{{response.data}}"
+                }
+              ],
+              "on_error": [
+                {
+                  "action": "set_variable",
+                  "variable": "whatif_status", 
+                  "value": "error"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "conditional_section",
+        "condition": "whatif_result",
+        "content": {
+          "type": "results_section",
+          "title": "Impact Analysis Results",
+          "components": [
+            {
+              "type": "metrics_grid",
+              "columns": 3,
+              "metrics": [
+                {
+                  "label": "Delay Impact",
+                  "value": "{{whatif_result.impact_summary.delay_change}}min",
+                  "trend": "{{whatif_result.impact_summary.delay_change < 0 ? 'down' : 'up'}}",
+                  "color": "{{whatif_result.impact_summary.delay_change < 0 ? '#4caf50' : '#f44336'}}",
+                  "icon": "schedule"
+                },
+                {
+                  "label": "CO₂ Impact", 
+                  "value": "{{whatif_result.co2_impact_kg.toFixed(1)}}kg",
+                  "trend": "{{whatif_result.co2_impact_kg < 0 ? 'down' : 'up'}}",
+                  "color": "{{whatif_result.co2_impact_kg < 0 ? '#4caf50' : '#f44336'}}",
+                  "icon": "eco"
+                },
+                {
+                  "label": "Affected Flights",
+                  "value": "{{whatif_result.impact_summary.affected_flights}}",
+                  "icon": "flight"
+                }
+              ]
+            },
+            {
+              "type": "comparison_chart",
+              "title": "Before vs After Comparison",
+              "data": {
+                "categories": ["Average Delay", "Peak Overload"],
+                "before": ["{{whatif_result.before_metrics.avg_delay}}", "{{whatif_result.before_metrics.peak_overload}}"],
+                "after": ["{{whatif_result.after_metrics.avg_delay}}", "{{whatif_result.after_metrics.peak_overload}}"]
+              },
+              "config": {
+                "chart_type": "bar",
+                "colors": ["#ff9800", "#1976d2"],
+                "height": 200
+              }
+            },
+            {
+              "type": "text_summary",
+              "content": "{{whatif_result.change_description}}",
+              "style": {
+                "background": "#f5f5f5",
+                "padding": "16px",
+                "border_radius": "8px",
+                "margin": "16px 0"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "footer": {
+    "actions": [
+      {
+        "type": "button",
+        "label": "Apply Change",
+        "style": "primary",
+        "disabled": "{{!whatif_result || whatif_result.impact_summary.delay_change > 10}}",
+        "action": "apply_whatif_change"
+      },
+      {
+        "type": "button",
+        "label": "Save Scenario",
+        "style": "secondary", 
+        "disabled": "{{!whatif_result}}",
+        "action": "save_whatif_scenario"
+      },
+      {
+        "type": "button",
+        "label": "Close",
+        "style": "text",
+        "action": "close_modal"
+      }
+    ]
+  }
+}
