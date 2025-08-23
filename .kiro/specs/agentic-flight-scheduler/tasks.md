@@ -178,7 +178,7 @@
   - Write integration tests for offline-replay mode functionality
   - _Requirements: 11.6, 12.5, 14.4_
 
-- [ ] 19. Enhance multi-provider NLP resilience and agent orchestration
+- [x] 19. Enhance multi-provider NLP resilience and agent orchestration
 
   - Implement multi-provider NLP chain (Gemini → Perplexity → OpenAI → Local)
   - Add automatic fallback handling for rate limits and API failures
@@ -189,7 +189,7 @@
   - Write tests for NLP provider fallbacks and tool orchestration
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 15.1, 15.6_
 
-- [ ] 20. Build continuous learning pipeline foundation
+- [x] 20. Build continuous learning pipeline foundation
 
   - Create feature engineering pipeline with online/offline parity
   - Implement model performance monitoring and drift detection
@@ -200,7 +200,7 @@
   - Write tests for model training, evaluation, and deployment processes
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
 
-- [ ] 21. Integrate weather modeling and capacity management
+- [x] 21. Integrate weather modeling and capacity management
 
   - Create WeatherIntegrationService for weather-based capacity adjustments
   - Implement weather regime classification (calm/medium/strong/severe)
