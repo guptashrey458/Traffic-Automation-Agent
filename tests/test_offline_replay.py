@@ -2,7 +2,7 @@
 
 import pytest
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from pathlib import Path
 import tempfile
 import pandas as pd
@@ -20,7 +20,7 @@ from src.services.console_alerting import (
     AlertSeverity,
     ConsoleAlert
 )
-from src.models.flight import Flight
+from src.models.flight import Flight, FlightStatus
 from src.config.settings import settings
 
 
@@ -39,23 +39,26 @@ class TestOfflineReplayService:
         flights = []
         
         for i in range(10):
+            from src.models.flight import Airport, FlightTime
             flight = Flight(
                 flight_id=f"TEST{i:03d}",
-                flight_no=f"AI{100+i}",
-                date_local=base_time.date(),
-                origin="BOM" if i % 2 == 0 else "DEL",
-                destination="DEL" if i % 2 == 0 else "BOM",
+                flight_number=f"AI{100+i}",
+                airline_code="AI",
+                origin=Airport(code="BOM" if i % 2 == 0 else "DEL", 
+                              name=f"Mumbai (BOM)" if i % 2 == 0 else f"Delhi (DEL)", 
+                              city="Mumbai" if i % 2 == 0 else "Delhi"),
+                destination=Airport(code="DEL" if i % 2 == 0 else "BOM", 
+                                   name=f"Delhi (DEL)" if i % 2 == 0 else f"Mumbai (BOM)", 
+                                   city="Delhi" if i % 2 == 0 else "Mumbai"),
                 aircraft_type="A320",
-                tail_number=f"VT-TEST{i}",
-                std_utc=base_time + timedelta(hours=i),
-                atd_utc=None,
-                sta_utc=base_time + timedelta(hours=i+2),
-                ata_utc=None,
-                dep_delay_min=None,
-                arr_delay_min=None,
-                runway=None,
-                stand=None,
-                source_file="test_data.xlsx"
+                aircraft_registration=f"VT-TEST{i}",
+                flight_date=base_time.date(),
+                departure=FlightTime(scheduled=time(base_time.hour + i, 0)),
+                arrival=FlightTime(scheduled=time(base_time.hour + i + 2, 0)),
+                flight_duration="2h 0m",
+                status=FlightStatus.SCHEDULED,
+                data_source="test_data.xlsx",
+                time_period="test"
             )
             flights.append(flight)
         
@@ -72,13 +75,13 @@ class TestOfflineReplayService:
             flight_data = []
             for flight in sample_flights:
                 flight_data.append({
-                    'Flight No': flight.flight_no,
-                    'Date': flight.date_local.strftime('%Y-%m-%d'),
-                    'From': flight.origin,
-                    'To': flight.destination,
+                    'Flight No': flight.flight_number,
+                    'Date': flight.flight_date.strftime('%Y-%m-%d'),
+                    'From': flight.origin.code if flight.origin else 'UNK',
+                    'To': flight.destination.code if flight.destination else 'UNK',
                     'Aircraft': flight.aircraft_type,
-                    'STD': flight.std_utc.strftime('%H:%M'),
-                    'STA': flight.sta_utc.strftime('%H:%M')
+                    'STD': flight.departure.scheduled.strftime('%H:%M') if flight.departure.scheduled else '00:00',
+                    'STA': flight.arrival.scheduled.strftime('%H:%M') if flight.arrival.scheduled else '00:00'
                 })
             
             df = pd.DataFrame(flight_data)

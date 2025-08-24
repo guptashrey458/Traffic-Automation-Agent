@@ -80,7 +80,7 @@ class TestPeaksEndpoint:
         mock_analysis.analysis_date = date(2024, 1, 1)
         mock_analysis.time_buckets = [mock_bucket]
         mock_analysis.overload_windows = [mock_window]
-        mock_analysis.capacity_utilization = 0.85
+        mock_analysis.avg_utilization = 0.85
         mock_analysis.recommendations = ["Consider redistributing flights from 06:00-06:30"]
         
         mock_analytics.analyze_peaks.return_value = mock_analysis

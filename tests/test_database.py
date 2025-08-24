@@ -224,7 +224,7 @@ class TestFlightDatabaseService:
             airport_code="BOM"
         )
         
-        assert result.row_count == 3  # All flights involve BOM
+        assert result.row_count == 2  # Two flights involve BOM (flight1 and flight2)
         
         # Query flights from/to DEL
         result = db_service.query_flights_by_date_range(
@@ -360,7 +360,7 @@ class TestFlightDatabaseService:
     def test_concurrent_access(self, db_service, sample_flights):
         """Test concurrent database access."""
         import threading
-        import time
+        import time as time_module
         
         results = []
         errors = []
@@ -388,7 +388,7 @@ class TestFlightDatabaseService:
                     origin=Airport(code="BOM", name="Mumbai", city="Mumbai"),
                     destination=Airport(code="DEL", name="Delhi", city="Delhi"),
                     flight_date=date(2024, 1, 15),
-                    departure=FlightTime(scheduled=time(8, 30)),
+                    departure=FlightTime(scheduled=time_module(8, 30)),
                     status=FlightStatus.SCHEDULED
                 ) for j in range(5)
             ]

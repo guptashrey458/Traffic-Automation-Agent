@@ -143,9 +143,22 @@ class FlightRadar24IngestionService:
         # Try to extract from filename first
         filename = os.path.basename(file_path)
         
-        # Pattern matching for airport codes
-        airport_match = re.search(r'([A-Z]{3})', filename.upper())
-        airport_code = airport_match.group(1) if airport_match else "UNK"
+        # Pattern matching for airport codes - look for 3-letter codes that are likely airports
+        # Try to find airport codes that are separated by underscores, dashes, or at word boundaries
+        airport_patterns = [
+            r'^([A-Z]{3})[_-]',     # BOM_2024-01-15_departures.html
+            r'[_-]([A-Z]{3})[_-]',  # _BOM_2024-01-15_departures.html
+            r'[_-]([A-Z]{3})\d',    # _BOM_20240115.html
+            r'\d([A-Z]{3})[_-]',    # 20240115_BOM_departures.html
+            r'[_-]([A-Z]{3})\.',    # _BOM.html
+        ]
+        
+        airport_code = "UNK"
+        for pattern in airport_patterns:
+            airport_match = re.search(pattern, filename.upper())
+            if airport_match:
+                airport_code = airport_match.group(1)
+                break
         
         # Pattern matching for dates
         date_match = re.search(r'(\d{4}[-_]?\d{2}[-_]?\d{2})', filename)

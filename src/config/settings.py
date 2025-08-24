@@ -128,6 +128,8 @@ class Settings(BaseSettings):
     google_api_key: Optional[str] = Field(default=None, description="Google Gemini API key")
     gemini_api_key: Optional[str] = Field(default=None, description="Gemini API key (alternative)")
     weather_api_key: Optional[str] = Field(default=None, description="Weather API key")
+    perplexity_api_key: Optional[str] = Field(default=None, description="Perplexity API key")
+    openai_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
     
     # Natural Language Processing
     nl_use_gemini: bool = Field(default=True, description="Use Gemini for NL processing")

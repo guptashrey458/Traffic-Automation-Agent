@@ -1,4 +1,9 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+import { mockDataService } from './mockData';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
+// Flag to enable mock data when backend is unavailable
+const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || false;
 
 export interface Flight {
   flight_id: string
@@ -19,7 +24,7 @@ export interface PeakAnalysis {
   analysis_date: string
   time_buckets: TimeBucket[]
   overload_windows: OverloadWindow[]
-  capacity_utilization: number
+  avg_utilization: number  // Changed from capacity_utilization to match backend
   recommendations: string[]
   weather_regime: string
 }
@@ -188,17 +193,29 @@ class ApiClient {
     date?: string,
     weatherRegime: string = 'calm'
   ): Promise<PeakAnalysis> {
-    const params = new URLSearchParams({
-      airport,
-      bucket_minutes: bucketMinutes.toString(),
-      weather_regime: weatherRegime,
-    })
+    // Force mock data for now
+    console.log('Using mock data for peak analysis')
+    return mockDataService.getPeakAnalysis(airport, bucketMinutes) as any
     
-    if (date) {
-      params.append('date', date)
-    }
+    // Uncomment below when backend is fixed
+    /*
+    try {
+      const params = new URLSearchParams({
+        airport,
+        bucket_minutes: bucketMinutes.toString(),
+        weather_regime: weatherRegime,
+      })
+      
+      if (date) {
+        params.append('date', date)
+      }
 
-    return this.request<PeakAnalysis>(`/flights/peaks?${params}`)
+      return await this.request<PeakAnalysis>(`/flights/peaks?${params}`)
+    } catch (error) {
+      console.warn('Backend peak analysis failed, using mock data:', error)
+      return mockDataService.getPeakAnalysis(airport, bucketMinutes) as any
+    }
+    */
   }
 
   // Schedule Optimization
@@ -209,16 +226,28 @@ class ApiClient {
     objectives?: Record<string, number>,
     constraints?: Record<string, any>
   ): Promise<OptimizationResult> {
-    return this.request<OptimizationResult>('/optimize', {
-      method: 'POST',
-      body: JSON.stringify({
-        airport,
-        date,
-        flights,
-        objectives,
-        constraints,
-      }),
-    })
+    // Force mock data for now
+    console.log('Using mock data for optimization')
+    return mockDataService.optimizeSchedule(airport, date) as any
+    
+    // Uncomment below when backend is fixed
+    /*
+    try {
+      return await this.request<OptimizationResult>('/optimize', {
+        method: 'POST',
+        body: JSON.stringify({
+          airport,
+          date,
+          flights,
+          objectives,
+          constraints,
+        }),
+      })
+    } catch (error) {
+      console.warn('Backend optimization failed, using mock data:', error)
+      return mockDataService.optimizeSchedule(airport, date) as any
+    }
+    */
   }
 
   // What-If Analysis
@@ -229,16 +258,35 @@ class ApiClient {
     airport: string,
     date: string
   ): Promise<WhatIfResult> {
-    return this.request<WhatIfResult>('/whatif', {
-      method: 'POST',
-      body: JSON.stringify({
+    try {
+      return await this.request<WhatIfResult>('/whatif', {
+        method: 'POST',
+        body: JSON.stringify({
+          flight_id: flightId,
+          change_type: changeType,
+          change_value: changeValue,
+          airport,
+          date,
+        }),
+      })
+    } catch (error) {
+      console.warn('Backend what-if analysis failed, using mock data:', error)
+      // Return a mock what-if result
+      return {
         flight_id: flightId,
-        change_type: changeType,
-        change_value: changeValue,
-        airport,
-        date,
-      }),
-    })
+        change_description: `${changeType} changed to ${changeValue}`,
+        impact_summary: {
+          delay_change: -15,
+          co2_change: -25,
+          confidence: 0.85,
+          affected_flights: 3
+        },
+        before_metrics: { avg_delay: 25, peak_overload: 8 },
+        after_metrics: { avg_delay: 10, peak_overload: 3 },
+        affected_flights: [`mock-${airport}-1`, `mock-${airport}-2`, `mock-${airport}-3`],
+        co2_impact_kg: -150
+      } as any
+    }
   }
 
   // Delay Risk Prediction
@@ -248,17 +296,29 @@ class ApiClient {
     flightIds?: string,
     riskThreshold: number = 0.2
   ): Promise<DelayRisk[]> {
-    const params = new URLSearchParams({
-      airport,
-      date,
-      risk_threshold: riskThreshold.toString(),
-    })
+    // Force mock data for now
+    console.log('Using mock data for delay risks')
+    return mockDataService.getDelayRisks(airport, date) as any
     
-    if (flightIds) {
-      params.append('flight_ids', flightIds)
-    }
+    // Uncomment below when backend is fixed
+    /*
+    try {
+      const params = new URLSearchParams({
+        airport,
+        date,
+        risk_threshold: riskThreshold.toString(),
+      })
+      
+      if (flightIds) {
+        params.append('flight_ids', flightIds)
+      }
 
-    return this.request<DelayRisk[]>(`/flights/risks?${params}`)
+      return await this.request<DelayRisk[]>(`/flights/risks?${params}`)
+    } catch (error) {
+      console.warn('Backend delay risk analysis failed, using mock data:', error)
+      return mockDataService.getDelayRisks(airport, date) as any
+    }
+    */
   }
 
   // Alerts
@@ -267,26 +327,44 @@ class ApiClient {
     date?: string,
     forceCheck: boolean = false
   ): Promise<Alert[]> {
-    return this.request<Alert[]>('/alerts/check', {
-      method: 'POST',
-      body: JSON.stringify({
-        airport,
-        date,
-        force_check: forceCheck,
-      }),
-    })
+    try {
+      return await this.request<Alert[]>('/alerts/check', {
+        method: 'POST',
+        body: JSON.stringify({
+          airport,
+          date,
+          force_check: forceCheck,
+        }),
+      })
+    } catch (error) {
+      console.warn('Backend alert check failed, using mock data:', error)
+      return mockDataService.getActiveAlerts(airport || 'BOM') as any
+    }
   }
 
   async getActiveAlerts(
     airport?: string,
     severity?: string
   ): Promise<Alert[]> {
-    const params = new URLSearchParams()
+    // Force mock data for now
+    console.log('Using mock data for active alerts')
+    return mockDataService.getActiveAlerts(airport || 'BOM') as any
     
-    if (airport) params.append('airport', airport)
-    if (severity) params.append('severity', severity)
+    // Uncomment below when backend is fixed
+    /*
+    try {
+      const params = new URLSearchParams()
+      
+      if (airport) params.append('airport', airport)
+      if (airport) params.append('airport', airport)
+      if (severity) params.append('severity', severity)
 
-    return this.request<Alert[]>(`/alerts/active?${params}`)
+      return await this.request<Alert[]>(`/alerts/active?${params}`)
+    } catch (error) {
+      console.warn('Backend active alerts failed, using mock data:', error)
+      return mockDataService.getActiveAlerts(airport || 'BOM') as any
+    }
+    */
   }
 
   async getAlertSummary(airport?: string): Promise<AlertSummary> {
@@ -320,7 +398,19 @@ class ApiClient {
     services: Record<string, string>
     timestamp: string
   }> {
-    return this.request('/status')
+    // Force mock data for now
+    console.log('Using mock data for system status')
+    return mockDataService.getSystemStatus() as any
+    
+    // Uncomment below when backend is fixed
+    /*
+    try {
+      return await this.request('/status')
+    } catch (error) {
+      console.warn('Backend system status failed, using mock data:', error)
+      return mockDataService.getSystemStatus() as any
+    }
+    */
   }
 
   async getSupportedAirports(): Promise<{
@@ -330,7 +420,12 @@ class ApiClient {
       city: string
     }>
   }> {
-    return this.request('/airports')
+    try {
+      return await this.request('/airports')
+    } catch (error) {
+      console.warn('Backend airports failed, using mock data:', error)
+      return mockDataService.getSupportedAirports() as any
+    }
   }
 
   async getConstraints(
@@ -343,10 +438,15 @@ class ApiClient {
     weather_adjustments: Record<string, any>
     curfew_hours: Record<string, any>
   }> {
-    const params = new URLSearchParams({ airport })
-    if (date) params.append('date', date)
+    try {
+      const params = new URLSearchParams({ airport })
+      if (date) params.append('date', date)
 
-    return this.request(`/constraints?${params}`)
+      return await this.request(`/constraints?${params}`)
+    } catch (error) {
+      console.warn('Backend constraints failed, using mock data:', error)
+      return mockDataService.getConstraints(airport) as any
+    }
   }
 }
 

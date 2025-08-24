@@ -43,9 +43,13 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { AlgorithmPreview } from '@/components/ui/AlgorithmPreview'
 import { NotificationDemo } from '@/components/ui/NotificationDemo'
+import { RealTimeMonitor } from '@/components/ui/RealTimeMonitor'
+import { BusinessLogicDisplay } from '@/components/ui/BusinessLogicDisplay'
+import { IntegrationTest } from '@/components/ui/IntegrationTest'
+import { MockDataTest } from '@/components/ui/MockDataTest'
+import apiClient from '@/lib/api'
 
 // ===================== CONFIG =====================
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
 
 // Motion variants
 const fadeIn = {
@@ -108,8 +112,7 @@ export default function FlightSchedulerDashboard() {
   // Fetch system status
   const fetchSystemStatus = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/status`)
-      const data = await response.json()
+      const data = await apiClient.getSystemStatus()
       setSystemStatus(data)
     } catch (error) {
       console.error('Failed to fetch system status:', error)
@@ -120,8 +123,7 @@ export default function FlightSchedulerDashboard() {
   const fetchPeakAnalysis = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/flights/peaks?airport=${selectedAirport}&bucket_minutes=10`)
-      const data = await response.json()
+      const data = await apiClient.getPeakAnalysis(selectedAirport, 10)
       setPeakAnalysis(data)
     } catch (error) {
       setError('Failed to fetch peak analysis')
@@ -133,8 +135,7 @@ export default function FlightSchedulerDashboard() {
   // Fetch active alerts
   const fetchActiveAlerts = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/alerts/active?airport=${selectedAirport}`)
-      const data = await response.json()
+      const data = await apiClient.getActiveAlerts(selectedAirport)
       setActiveAlerts(data)
     } catch (error) {
       console.error('Failed to fetch alerts:', error)
@@ -144,8 +145,7 @@ export default function FlightSchedulerDashboard() {
   // Fetch delay risks
   const fetchDelayRisks = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/flights/risks?airport=${selectedAirport}`)
-      const data = await response.json()
+      const data = await apiClient.getDelayRisks(selectedAirport, new Date().toISOString().split('T')[0])
       setDelayRisks(data)
     } catch (error) {
       console.error('Failed to fetch delay risks:', error)
@@ -156,16 +156,12 @@ export default function FlightSchedulerDashboard() {
   const runOptimization = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/optimize`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          airport: selectedAirport,
-          time_range: timeRange,
-          objectives: ['delay_reduction', 'fuel_efficiency', 'capacity_utilization']
-        })
-      })
-      const data = await response.json()
+      const data = await apiClient.optimizeSchedule(
+        selectedAirport,
+        new Date().toISOString().split('T')[0],
+        undefined,
+        { delay_weight: 1.0, taxi_weight: 0.5, fairness_weight: 0.3 }
+      )
       setOptimizationResult(data)
     } catch (error) {
       setError('Failed to run optimization')
@@ -178,16 +174,13 @@ export default function FlightSchedulerDashboard() {
   const runWhatIfAnalysis = async (flightId: string, changeType: string, changeValue: string) => {
     setLoading(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/whatif`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          flight_id: flightId,
-          change_type: changeType,
-          change_value: changeValue
-        })
-      })
-      const data = await response.json()
+      const data = await apiClient.whatIfAnalysis(
+        flightId,
+        changeType,
+        changeValue,
+        selectedAirport,
+        new Date().toISOString().split('T')[0]
+      )
       setWhatIfResult(data)
     } catch (error) {
       setError('Failed to run what-if analysis')
@@ -303,6 +296,18 @@ export default function FlightSchedulerDashboard() {
         </CardContent>
       </Card>
 
+      {/* Real-Time Monitor */}
+      <RealTimeMonitor airport={selectedAirport} />
+
+      {/* Business Logic Display */}
+      <BusinessLogicDisplay airport={selectedAirport} />
+
+      {/* Integration Test Suite */}
+      <IntegrationTest airport={selectedAirport} />
+
+      {/* Mock Data Test */}
+      <MockDataTest />
+
       {/* Active Alerts */}
       <Card className="p-6">
         <CardHeader>
@@ -372,7 +377,7 @@ export default function FlightSchedulerDashboard() {
                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <p className="text-sm text-blue-600 dark:text-blue-400">Capacity Utilization</p>
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                    {(peakAnalysis.capacity_utilization * 100).toFixed(1)}%
+                    {(peakAnalysis.avg_utilization * 100).toFixed(1)}%
                   </p>
                 </div>
                 <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
