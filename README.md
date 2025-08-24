@@ -4,8 +4,30 @@
 [![Tests](https://img.shields.io/badge/Tests-Passing-green.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-brightgreen.svg)](tests/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-blue?style=flat&logo=vercel)](https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app)
 
 An **autonomous flight scheduling optimization system** that combines machine learning, optimization algorithms, natural language processing, and intelligent automation to provide comprehensive flight schedule management for busy aviation hubs. The system operates as an intelligent agent capable of autonomous decision-making, real-time monitoring, and proactive optimization.
+
+## 🚀 Live Demo & Deployment
+
+### 🌐 **Live Application**
+- **Frontend Dashboard**: [https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app](https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app)
+- **Vercel Dashboard**: [https://vercel.com/shreyansh-guptas-projects-f6fe8e9b/dashboard](https://vercel.com/shreyansh-guptas-projects-f6fe8e9b/dashboard)
+- **Status**: ✅ **Production Ready** | 🚀 **Globally Deployed**
+
+### 📱 **Features Available Live**
+- ✅ Real-time flight analytics with interactive charts
+- ✅ AI-powered delay prediction with algorithm transparency  
+- ✅ Schedule optimization with step-by-step formulas
+- ✅ What-if analysis for scenario simulation
+- ✅ Alert management with notification testing
+- ✅ Live algorithm execution preview
+- ✅ Dark/Light mode with proper contrast
+
+### ⚠️ **Note About Backend**
+The frontend is fully deployed and functional. The backend API currently points to localhost and needs to be deployed separately to enable full functionality.
+
+---
 
 ## 🎯 Interactive System Architecture
 
