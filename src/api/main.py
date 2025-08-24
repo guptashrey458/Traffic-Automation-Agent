@@ -196,7 +196,7 @@ async def get_flight_peaks(
             analysis_date=analysis.analysis_date,
             time_buckets=[bucket.to_dict() for bucket in analysis.time_buckets],
             overload_windows=[window.to_dict() for window in analysis.overload_windows],
-            capacity_utilization=analysis.capacity_utilization,
+            capacity_utilization=analysis.avg_utilization,
             recommendations=analysis.recommendations,
             weather_regime=weather.value
         )

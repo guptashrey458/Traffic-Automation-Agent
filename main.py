@@ -12,7 +12,6 @@ def main():
         "src.api.main:app",
         host=config.api.host,
         port=config.api.port,
-        debug=config.api.debug,
         reload=config.api.reload,
         workers=config.api.workers if not config.api.reload else 1,
     )
