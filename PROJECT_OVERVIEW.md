@@ -64,6 +64,29 @@ The **Agentic AI Flight Scheduler** is an intelligent flight scheduling and opti
 └── 🔔 Alert Management
 ```
 
+## 🌐 Live Deployment & Demo
+
+### 🚀 **Production Deployment**
+- **Frontend Dashboard**: [Live Demo](https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app)
+- **Vercel Dashboard**: [Project Management](https://vercel.com/shreyansh-guptas-projects-f6fe8e9b/dashboard)
+- **Status**: ✅ **Production Ready** | 🚀 **Globally Deployed**
+
+### 📱 **Live Features Available**
+- ✅ Real-time flight analytics with interactive charts
+- ✅ AI-powered delay prediction with algorithm transparency
+- ✅ Schedule optimization with step-by-step formulas
+- ✅ What-if analysis for scenario simulation
+- ✅ Alert management with notification testing
+- ✅ Live algorithm execution preview
+- ✅ Dark/Light mode with proper contrast
+
+### ⚠️ **Current Deployment Status**
+- **Frontend**: ✅ Fully deployed and functional on Vercel
+- **Backend**: 🔄 Needs separate deployment (currently points to localhost)
+- **Next Steps**: Deploy backend to cloud service for full functionality
+
+---
+
 ## 🎮 How to Use the System
 
 ### 1. **Getting Started**
