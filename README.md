@@ -11,8 +11,8 @@ An **autonomous flight scheduling optimization system** that combines machine le
 ## 🚀 Live Demo & Deployment
 
 ### 🌐 **Live Application**
-- **Frontend Dashboard**: [https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app](https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app)
-- **Vercel Dashboard**: [https://vercel.com/shreyansh-guptas-projects-f6fe8e9b/dashboard](https://vercel.com/shreyansh-guptas-projects-f6fe8e9b/dashboard)
+- **Frontend Dashboard**: [[https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app](https://dashboard-guptashrey458-shreyansh-guptas-projects-f6fe8e9b.vercel.app?_vercel_share=hTMVd3f74W9goYC7drA22SdXgTJLvzPt)]([https://dashboard-7c6rxyxz1-shreyansh-guptas-projects-f6fe8e9b.vercel.app](https://dashboard-guptashrey458-shreyansh-guptas-projects-f6fe8e9b.vercel.app?_vercel_share=hTMVd3f74W9goYC7drA22SdXgTJLvzPt))
+- **Vercel Dashboard**: [https://vercel.com/shreyansh-guptas-projects-f6fe8e9b/dashboard]([https://vercel.com/shreyansh-guptas-projects-f6fe8e9b/dashboard](https://dashboard-guptashrey458-shreyansh-guptas-projects-f6fe8e9b.vercel.app?_vercel_share=hTMVd3f74W9goYC7drA22SdXgTJLvzPt))
 - **Status**: ✅ **Production Ready** | 🚀 **Globally Deployed**
 
 ### 📱 **Features Available Live**
